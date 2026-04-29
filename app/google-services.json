@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1053388490620",
+    "project_id": "echelon-af864",
+    "storage_bucket": "echelon-af864.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1053388490620:android:39f59e0dea3d31dcb246f9",
+        "android_client_info": {
+          "package_name": "com.example.echelon"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBWjrIGx6JCApJnZE4_x6ALb3D9BDtu8lM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
