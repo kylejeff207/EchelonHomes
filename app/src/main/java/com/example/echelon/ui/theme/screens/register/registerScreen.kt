@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Email
@@ -41,6 +42,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -105,7 +108,8 @@ fun RegisterScreen(navController: NavController){
             placeholder = { Text(text = "Enter Username")},
             leadingIcon = {Icon(Icons.Default.Person,contentDescription = null)},
             modifier = Modifier.fillMaxWidth().padding(horizontal = 40.dp),
-            shape = MaterialTheme.shapes.medium
+            shape = MaterialTheme.shapes.medium,
+            singleLine = true
         )
         
         Spacer(modifier = Modifier.height(8.dp))
@@ -117,7 +121,12 @@ fun RegisterScreen(navController: NavController){
             label = { Text(text = "Email Address")},
             leadingIcon = { Icon(Icons.Default.Email,contentDescription = null) },
             modifier = Modifier.fillMaxWidth().padding(horizontal = 40.dp),
-            shape = MaterialTheme.shapes.medium
+            shape = MaterialTheme.shapes.medium,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Email,
+                capitalization = KeyboardCapitalization.None
+            ),
+            singleLine = true
         )
         
         Spacer(modifier = Modifier.height(8.dp))
@@ -130,7 +139,9 @@ fun RegisterScreen(navController: NavController){
             leadingIcon = { Icon(Icons.Default.Lock,contentDescription = null) },
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth().padding(horizontal = 40.dp),
-            shape = MaterialTheme.shapes.medium
+            shape = MaterialTheme.shapes.medium,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            singleLine = true
         )
         
         Spacer(modifier = Modifier.height(8.dp))
@@ -143,7 +154,9 @@ fun RegisterScreen(navController: NavController){
             leadingIcon = { Icon(Icons.Default.Check,contentDescription = null) },
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth().padding(horizontal = 40.dp),
-            shape = MaterialTheme.shapes.medium
+            shape = MaterialTheme.shapes.medium,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            singleLine = true
         )
 
         Spacer(modifier = Modifier.height(20.dp))
@@ -174,8 +187,8 @@ fun RegisterScreen(navController: NavController){
         Button(
             onClick = { 
                 authViewModel.signup(
-                    username = username,
-                    email = email,
+                    username = username.trim(),
+                    email = email.trim(),
                     password = password,
                     confirmpassword = confirmpassword,
                     userRole = userRole,

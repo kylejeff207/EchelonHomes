@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
@@ -37,6 +38,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -95,7 +98,13 @@ fun LoginScreen(navController: NavController) {
             label = { Text(text = "Email Address") },
             placeholder = { Text(text = "example@mail.com") },
             leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 40.dp)
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 40.dp),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Email,
+                autoCorrect = false,
+                capitalization = KeyboardCapitalization.None
+            ),
+            singleLine = true
         )
         
         Spacer(modifier = Modifier.height(10.dp))
@@ -107,14 +116,16 @@ fun LoginScreen(navController: NavController) {
             placeholder = { Text(text = "Enter Password") },
             leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
             visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 40.dp)
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 40.dp),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            singleLine = true
         )
 
         Spacer(modifier = Modifier.height(30.dp))
 
         Button(
             onClick = {
-                authViewModel.login(email, password, navController, context)
+                authViewModel.login(email.trim(), password, navController, context)
             },
             modifier = Modifier
                 .fillMaxWidth()

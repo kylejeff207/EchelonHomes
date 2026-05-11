@@ -15,7 +15,10 @@ import com.example.echelon.models.HouseModel
 import com.example.echelon.navigation.ROUTE_DASHBOARD1
 import com.example.echelon.navigation.ROUTE_VIEWHOUSE
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -100,27 +103,42 @@ class HouseViewModel : ViewModel() {
     }
 
     fun fetchHouses(context: Context) {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val ref = FirebaseDatabase.getInstance().getReference("Houses")
-                val snapshot = ref.get().await()
-                withContext(Dispatchers.Main) {
-                    _houses.clear()
-                    for (child in snapshot.children) {
+        val ref = FirebaseDatabase.getInstance().getReference("Houses")
+        ref.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                _houses.clear()
+                for (child in snapshot.children) {
+                    try {
                         val house = child.getValue(HouseModel::class.java)
                         house?.let {
                             it.id = child.key
                             _houses.add(it)
                         }
+                    } catch (e: Exception) {
+                        Log.e("HouseViewModel", "Data mismatch for house ${child.key}: ${e.message}")
+                        // Fallback: Manually parse fields to handle type mismatches (e.g., Long instead of String)
+                        val house = HouseModel(
+                            id = child.key,
+                            houseLocation = child.child("houseLocation").getValue(String::class.java) ?: "",
+                            uploaderName = child.child("uploaderName").getValue(String::class.java) ?: "",
+                            phoneNumber = child.child("phoneNumber").value?.toString() ?: "",
+                            housePrice = child.child("housePrice").value?.toString() ?: "",
+                            imageUrl = child.child("imageUrl").getValue(String::class.java),
+                            uploaderId = child.child("uploaderId").getValue(String::class.java)
+                        )
+                        _houses.add(house)
                     }
                 }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    Log.e("HouseViewModel", "Fetch all failed", e)
-                    Toast.makeText(context, "Fetch Error: ${e.message}", Toast.LENGTH_LONG).show()
+                if (_houses.isEmpty()) {
+                    Log.d("HouseViewModel", "No houses found in database")
                 }
             }
-        }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("HouseViewModel", "Database error: ${error.message}")
+                Toast.makeText(context, "Database Error: ${error.message}", Toast.LENGTH_LONG).show()
+            }
+        })
     }
 
     fun fetchMyHouses(context: Context) {
@@ -133,17 +151,30 @@ class HouseViewModel : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val ref = FirebaseDatabase.getInstance().getReference("Houses")
-                // NOTE: This query REQUIRES ".indexOn": ["uploaderId"] in your Firebase Rules
                 val snapshot = ref.orderByChild("uploaderId").equalTo(currentUserId).get().await()
                 
                 withContext(Dispatchers.Main) {
                     _houses.clear()
                     if (snapshot.exists()) {
                         for (child in snapshot.children) {
-                            val house = child.getValue(HouseModel::class.java)
-                            house?.let {
-                                it.id = child.key
-                                _houses.add(it)
+                            try {
+                                val house = child.getValue(HouseModel::class.java)
+                                house?.let {
+                                    it.id = child.key
+                                    _houses.add(it)
+                                }
+                            } catch (e: Exception) {
+                                // Fallback for MyHouses as well
+                                val house = HouseModel(
+                                    id = child.key,
+                                    houseLocation = child.child("houseLocation").getValue(String::class.java) ?: "",
+                                    uploaderName = child.child("uploaderName").getValue(String::class.java) ?: "",
+                                    phoneNumber = child.child("phoneNumber").value?.toString() ?: "",
+                                    housePrice = child.child("housePrice").value?.toString() ?: "",
+                                    imageUrl = child.child("imageUrl").getValue(String::class.java),
+                                    uploaderId = child.child("uploaderId").getValue(String::class.java)
+                                )
+                                _houses.add(house)
                             }
                         }
                     } else {
@@ -153,7 +184,6 @@ class HouseViewModel : ViewModel() {
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     Log.e("HouseViewModel", "Fetch my houses failed", e)
-                    // If this shows "Index not defined", you MUST update your rules in the Firebase Console
                     Toast.makeText(context, "Fetch Error: ${e.message}", Toast.LENGTH_LONG).show()
                 }
             }

@@ -98,12 +98,6 @@ fun dashboard2(navController: NavController) {
                         indicatorColor = primaryGreen.copy(alpha = 0.1f)
                     )
                 )
-                NavigationBarItem(
-                    selected = false,
-                    onClick = { },
-                    icon = { Icon(Icons.Default.Person, contentDescription = null) },
-                    label = { Text("Profile") }
-                )
             }
         }
     ) { padding ->
